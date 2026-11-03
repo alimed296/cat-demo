@@ -1,0 +1,13 @@
+# Node modules (too big to upload)
+node_modules/
+
+# Environment variables (contains your password!)
+.env
+
+# OS junk files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

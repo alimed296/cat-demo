@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New User</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">➕</div>
+      <h1>Create User</h1>
+      <p class="muted small">admin only</p>
+
+      <label for="newUser">Username</label>
+      <input id="newUser" type="text" placeholder="username">
+
+      <label for="newPass">Password</label>
+      <input id="newPass" type="password" placeholder="password">
+
+      <label for="newStaffId">Staff ID</label>
+      <input id="newStaffId" type="text" placeholder="e.g. STF-003">
+
+      <label for="newRole">Role</label>
+      <select id="newRole">
+        <option value="user">user</option>
+        <option value="admin">admin</option>
+      </select>
+
+      <p id="newMsg" class="error"></p>
+
+      <button class="btn primary" onclick="createUser()">Create</button>
+      <p class="muted small" style="margin-top:14px;"><a href="/" class="link-btn">← back to app</a></p>
+    </div>
+  </div>
+
+  <script>
+    var token = localStorage.getItem("ccToken") || "";
+    var role = localStorage.getItem("ccRole") || "";
+
+    if (!token || role !== "admin") {
+      document.body.innerHTML = "<div class='login-screen'><div class='login-card'><h1>Admins only</h1><p class='muted'>log in as an admin first.</p><p class='muted small' style='margin-top:14px;'><a href='/' class='link-btn'>← back</a></p></div></div>";
+    }
+
+    function showMsg(text, ok) {
+      var msg = document.getElementById("newMsg");
+      if (!msg) return;
+      msg.textContent = text;
+      msg.style.display = "block";
+      msg.style.color = ok ? "#1e7e34" : "#c0392b";
+    }
+
+    function createUser() {
+      var username = document.getElementById("newUser").value.trim();
+      var password = document.getElementById("newPass").value;
+      var staffId = document.getElementById("newStaffId").value.trim();
+      var selectedRole = document.getElementById("newRole").value;
+
+      if (!username || !password || !staffId) {
+        showMsg("fill in all fields", false);
+        return;
+      }
+
+      fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password,
+          staffId: staffId,
+          role: selectedRole
+        })
+      }).then(function(res) {
+        return res.json().then(function(data) {
+          if (!res.ok) {
+            showMsg(data.error || "failed", false);
+            return;
+          }
+          showMsg("user created: " + data.username, true);
+          document.getElementById("newUser").value = "";
+          document.getElementById("newPass").value = "";
+          document.getElementById("newStaffId").value = "";
+        });
+      }).catch(function() {
+        showMsg("network error", false);
+      });
+    }
+  </script>
+</body>
+</html>

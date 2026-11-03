@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cat Care System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🐱</div>
+    <h1>Cat Care System</h1>
+    <p class="muted">Campus Cat Observation</p>
+
+    <label for="username">Username</label>
+    <input id="username" type="text" placeholder="type your username">
+
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="type your password">
+
+    <p id="loginError" class="error"></p>
+
+    <button id="loginBtn" class="btn primary">Log In</button>
+
+    <p class="muted small">demo: admin / admin123 &nbsp;·&nbsp; user / user123</p>
+  </div>
+</div>
+
+<div id="shell" class="shell hidden">
+
+  <div class="header">
+    <div class="header-left">
+      <span class="header-logo">🐱</span>
+      <span class="header-title">Cat Care System</span>
+    </div>
+    <div class="header-right">
+      <button id="homeBtn" class="btn ghost hidden">⌂ Home</button>
+      <span id="userLabel" class="user-label">-</span>
+      <button id="helpBtn" class="btn ghost">?</button>
+      <button id="logoutBtn" class="btn ghost">Log out</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <div class="view" id="view-home">
+      <div id="urgentBanner" class="alert hidden"></div>
+
+      <div class="home-head">
+        <h2>What would you like to do?</h2>
+        <p class="muted small">Pick an operation</p>
+      </div>
+
+      <div class="case-grid">
+        <button class="case-tile" data-case="checkin">
+          <span class="case-icon">📋</span>
+          <span class="case-num">Case 1</span>
+          <span class="case-title">Daily Check-In</span>
+          <span class="case-desc">Quick area sweep. Pick an area, fill the short form.</span>
+        </button>
+
+        <button class="case-tile" data-case="incident">
+          <span class="case-icon">⚠️</span>
+          <span class="case-num">Case 2</span>
+          <span class="case-title">Report Incident</span>
+          <span class="case-desc">Detailed report about one cat. Two-step form.</span>
+        </button>
+
+        <button class="case-tile" data-case="lookup">
+          <span class="case-icon">🔍</span>
+          <span class="case-num">Lookup</span>
+          <span class="case-title">Cat Lookup</span>
+          <span class="case-desc">Search a cat's ID to see every incident about it.</span>
+        </button>
+
+        <button class="case-tile admin-only" data-case="dashboard">
+          <span class="case-icon">📊</span>
+          <span class="case-num">Admin</span>
+          <span class="case-title">Dashboard</span>
+          <span class="case-desc">Compact view of all check-ins and incidents.</span>
+        </button>
+
+        <button class="case-tile admin-only" data-case="flagged">
+          <span class="case-icon">🚩</span>
+          <span class="case-num">Admin</span>
+          <span class="case-title">Flagged</span>
+          <span class="case-desc">Check-ins and incidents marked for follow-up.</span>
+        </button>
+
+        <button class="case-tile admin-only" data-case="team">
+          <span class="case-icon">👥</span>
+          <span class="case-num">Admin</span>
+          <span class="case-title">Team</span>
+          <span class="case-desc">All users and their contributions.</span>
+        </button>
+
+        <button class="case-tile admin-only" data-case="newuser">
+          <span class="case-icon">➕</span>
+          <span class="case-num">Admin</span>
+          <span class="case-title">New User</span>
+          <span class="case-desc">Create a new staff account.</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-checkin">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromCheckin">← Back to menu</button>
+        <span class="crumb-label">Case 1 · Daily Check-In</span>
+      </div>
+
+      <div id="checkinStep1">
+        <div class="view-head">
+          <h2>Step 1 — Pick an area</h2>
+          <p class="muted small">Where are you doing the check-in?</p>
+        </div>
+        <div class="area-grid">
+          <button class="area-tile" data-area="Commons">Commons</button>
+          <button class="area-tile" data-area="School Side">School Side</button>
+          <button class="area-tile" data-area="Admin">Admin</button>
+          <button class="area-tile" data-area="Seaview">Seaview</button>
+          <button class="area-tile" data-area="General Campus">General Campus</button>
+        </div>
+      </div>
+
+      <div id="checkinStep2" class="hidden">
+        <div class="view-head">
+          <h2>Step 2 — Check-in form</h2>
+          <p class="muted small">Area: <strong id="checkinAreaLabel">-</strong>
+            <button id="changeAreaBtn" class="link-btn">change</button>
+          </p>
+        </div>
+
+        <div class="form-card">
+          <div class="field-row">
+            <div class="field">
+              <label for="foodTime">Food supply refill time</label>
+              <input id="foodTime" type="time">
+            </div>
+            <div class="field">
+              <label for="waterTime">Water supply refill time</label>
+              <input id="waterTime" type="time">
+            </div>
+          </div>
+
+          <div class="check-list">
+            <label class="check-row"><input id="foodOk" type="checkbox"> Food supply is fine</label>
+            <label class="check-row"><input id="waterOk" type="checkbox"> Water supply is fine</label>
+            <label class="check-row"><input id="noThreats" type="checkbox"> No threats detected</label>
+          </div>
+
+          <label for="checkinNotes">Notes (optional)</label>
+          <textarea id="checkinNotes" placeholder="anything you noticed, even small things..."></textarea>
+
+          <label class="check-row"><input id="flagFollow" type="checkbox"> Flag this check-in for follow-up</label>
+
+          <div class="form-actions">
+            <button id="cancelCheckin" class="btn ghost">Cancel</button>
+            <button id="submitCheckin" class="btn primary">Submit Check-In</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-incident">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromIncident">← Back to menu</button>
+        <span class="crumb-label">Case 2 · Report Incident</span>
+      </div>
+
+      <div class="steps">
+        <div class="step-dot active" id="stepDot1">1</div>
+        <div class="step-line"></div>
+        <div class="step-dot" id="stepDot2">2</div>
+      </div>
+
+      <div id="incidentStep1">
+        <div class="view-head">
+          <h2>Section 1 — Basic Details</h2>
+        </div>
+
+        <div class="form-card">
+          <div class="field-row">
+            <div class="field">
+              <label for="catId">Cat ID</label>
+              <input id="catId" type="text" placeholder="e.g. C-01">
+            </div>
+            <div class="field">
+              <label for="breed">Breed</label>
+              <input id="breed" type="text" placeholder="e.g. Tabby">
+            </div>
+          </div>
+
+          <label for="picture">Picture (optional)</label>
+          <input id="picture" type="file" accept="image/*">
+          <img id="picturePreview" class="preview hidden" alt="">
+
+          <label for="area">Cat Area</label>
+          <select id="area">
+            <option value="">-- choose --</option>
+            <option>Commons</option>
+            <option>School Side</option>
+            <option>Admin</option>
+            <option>Seaview</option>
+            <option>General Campus</option>
+          </select>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="staffName">Staff Name</label>
+              <input id="staffName" type="text" placeholder="your full name">
+            </div>
+            <div class="field">
+              <label for="staffContact">Staff Contact</label>
+              <input id="staffContact" type="tel" placeholder="phone or email">
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="logDate">Log Date</label>
+              <input id="logDate" type="date">
+            </div>
+            <div class="field">
+              <label for="taskDue">Task Due Time</label>
+              <input id="taskDue" type="datetime-local">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button id="nextIncident" class="btn primary">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="incidentStep2" class="hidden">
+        <div class="view-head">
+          <h2>Section 2 — Specific Details</h2>
+        </div>
+
+        <div class="form-card">
+          <div class="field-row">
+            <div class="field">
+              <label for="feedingTime">Feeding Time</label>
+              <select id="feedingTime">
+                <option value="">-- choose --</option>
+                <option>Morning</option>
+                <option>Afternoon</option>
+                <option>Evening</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="waterSupply">Main Water Supply Check</label>
+              <select id="waterSupply">
+                <option value="">-- choose --</option>
+                <option>Low</option>
+                <option>Full</option>
+                <option>Empty</option>
+              </select>
+            </div>
+          </div>
+
+          <label for="healthDetails">Health of the cat</label>
+          <p class="hint">eyes and nose clear? coat smooth? wounds or limping? weight normal?</p>
+          <textarea id="healthDetails" placeholder="describe what you see..."></textarea>
+
+          <label for="behaviourDetails">Behaviour</label>
+          <p class="hint">friendly, shy or aggressive? eating normally? hiding or quiet?</p>
+          <textarea id="behaviourDetails" placeholder="describe the behaviour..."></textarea>
+
+          <label for="medicalAttention">Medical Attention</label>
+          <select id="medicalAttention">
+            <option value="">-- choose --</option>
+            <option>No attention needed</option>
+            <option>Mild attention and monitoring</option>
+            <option>Immediate attention required</option>
+          </select>
+
+          <label for="actionTaken">Action Taken / Required</label>
+          <textarea id="actionTaken" placeholder="what was done or what still needs to happen?"></textarea>
+
+          <div class="form-actions">
+            <button id="backIncident" class="btn ghost">← Back</button>
+            <button id="submitIncident" class="btn primary">Submit Report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-lookup">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromLookup">← Back to menu</button>
+        <span class="crumb-label">Cat Lookup</span>
+      </div>
+
+      <div class="view-head">
+        <h2>Cat Lookup</h2>
+        <p class="muted small">Search a cat's ID to see all incidents about that cat</p>
+      </div>
+
+      <div class="form-card">
+        <div class="field-row">
+          <div class="field" style="flex: 3;">
+            <label for="lookupInput">Cat ID</label>
+            <input id="lookupInput" type="text" placeholder="e.g. C-01">
+          </div>
+          <div class="field" style="flex: 1; align-self: flex-end;">
+            <button id="lookupBtn" class="btn primary" style="margin-top:0;">Search</button>
+          </div>
+        </div>
+        <div id="lookupResults" class="results"></div>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-dashboard">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromDashboard">← Back to menu</button>
+        <span class="crumb-label">Admin Dashboard</span>
+      </div>
+
+      <div id="urgentBanner2" class="alert hidden"></div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-num" id="statCheckins">0</span>
+          <span class="stat-lbl">Check-Ins</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="statIncidents">0</span>
+          <span class="stat-lbl">Incidents</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="statUrgent">0</span>
+          <span class="stat-lbl">Urgent Open</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" id="statResolved">0</span>
+          <span class="stat-lbl">Resolved</span>
+        </div>
+      </div>
+
+      <div class="subtabs">
+        <button class="subtab active" data-panel="checkins">Check-Ins</button>
+        <button class="subtab" data-panel="incidents">Incidents</button>
+      </div>
+
+      <div id="panelCheckins">
+        <div class="filter-bar">
+          <select id="filterArea">
+            <option value="">All areas</option>
+            <option>Commons</option>
+            <option>School Side</option>
+            <option>Admin</option>
+            <option>Seaview</option>
+            <option>General Campus</option>
+          </select>
+          <input id="filterStaff" placeholder="Staff name">
+          <input id="filterDate" type="date">
+          <button id="clearCF" class="btn ghost small">Clear</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Staff</th><th>ID</th><th>Area</th><th>Food</th><th>Water</th>
+                <th>Threats</th><th>Notes</th><th>Time</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="checkinTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="panelIncidents" class="hidden">
+        <div class="filter-bar">
+          <select id="filterIncArea">
+            <option value="">All areas</option>
+            <option>Commons</option>
+            <option>School Side</option>
+            <option>Admin</option>
+            <option>Seaview</option>
+            <option>General Campus</option>
+          </select>
+          <select id="filterMedical">
+            <option value="">Any urgency</option>
+            <option>No attention needed</option>
+            <option>Mild attention and monitoring</option>
+            <option>Immediate attention required</option>
+          </select>
+          <select id="filterStatus">
+            <option value="">Any status</option>
+            <option>Open</option>
+            <option>In Progress</option>
+            <option>Resolved</option>
+          </select>
+          <input id="filterCat" placeholder="Cat ID">
+          <button id="clearIF" class="btn ghost small">Clear</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cat</th><th>Breed</th><th>Area</th><th>Staff</th>
+                <th>Urgency</th><th>Status</th><th>Action</th><th>Time</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="incidentTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-flagged">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromFlagged">← Back to menu</button>
+        <span class="crumb-label">Flagged for Follow-Up</span>
+      </div>
+
+      <div class="view-head">
+        <h2>Flagged for Follow-Up</h2>
+        <p class="muted small">Check-ins and incidents marked for attention</p>
+      </div>
+
+      <div class="subtabs">
+        <button class="subtab active" data-fpanel="fcheckins">Flagged Check-Ins</button>
+        <button class="subtab" data-fpanel="fincidents">Flagged Incidents</button>
+      </div>
+
+      <div id="fpanelCheckins">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Staff</th><th>ID</th><th>Area</th><th>Notes</th><th>Time</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="flaggedCheckinTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="fpanelIncidents" class="hidden">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Cat</th><th>Area</th><th>Staff</th><th>Urgency</th><th>Status</th><th>Time</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="flaggedIncidentTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-team">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromTeam">← Back to menu</button>
+        <span class="crumb-label">Team & Contributions</span>
+      </div>
+
+      <div class="view-head">
+        <h2>Team &amp; Contributions</h2>
+        <p class="muted small">All users and what they've logged</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Username</th><th>Staff ID</th><th>Role</th>
+              <th>Check-Ins</th><th>Incidents</th><th>Last Active</th>
+            </tr>
+          </thead>
+          <tbody id="teamTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-catdetail">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromCat">← Back</button>
+        <span class="crumb-label">Cat Detail</span>
+      </div>
+
+      <div class="cat-detail">
+        <div class="cat-photo-wrap">
+          <img id="catPhoto" class="cat-photo" alt="Cat photo">
+        </div>
+        <div class="cat-info">
+          <h2 id="catDetailId">-</h2>
+          <p class="muted" id="catDetailMeta">-</p>
+          <div class="cat-stats">
+            <div class="stat-mini"><span id="catTotalIncidents">0</span><small>Incidents</small></div>
+            <div class="stat-mini"><span id="catOpen">0</span><small>Open</small></div>
+            <div class="stat-mini"><span id="catLatest" class="stat-tiny">-</span><small>Latest Urgency</small></div>
+          </div>
+        </div>
+      </div>
+
+      <h3>Incident History</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Area</th><th>Staff</th>
+              <th>Medical</th><th>Status</th><th>Action Taken</th>
+            </tr>
+          </thead>
+          <tbody id="catIncidentTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="view hidden" id="view-help">
+      <div class="crumb">
+        <button class="btn ghost small" id="backFromHelp">← Back to menu</button>
+        <span class="crumb-label">Help</span>
+      </div>
+
+      <div class="view-head">
+        <h2>Help</h2>
+      </div>
+      <div class="form-card">
+        <p><b>Routine Log:</b> Fast, simple form for everyday check-ins.</p>
+        <p><b>Detailed Reporting:</b> Guided form for reporting specific incidents.</p>
+        <p><b>History Lookup:</b> Instant search for past records.</p>
+        <p><b>Manager Tools:</b> Full control to review, edit, and clean up logs.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
